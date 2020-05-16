@@ -1,0 +1,24 @@
+\chapter*{Introduzione}
+\addcontentsline{toc}{chapter}{Introduzione}
+Il controllo del traffico automobilistico mediante algoritmi performanti, soprattutto per quanto concerne le città più popolose, è un problema affrontato in numerosi documenti di stampo scientifico; tuttavia pochi sono stati i risultati finora raggiunti, ed il sistema più utilizzato per gestire il flusso di veicoli nelle intersezioni stradali resta quello dei semafori staticamente programmati, indipendenti cioè da parametri o eventi esterni.
+
+Certamente negli anni si è compresa quantomeno l’importanza di assegnare una differente priorità, comunque statica, alle varie strade, in modo tale da privilegiare le arterie principali con meccanismi come le onde verdi, tuttavia sarebbe più auspicabile un processo a priorità dinamica, che conceda il verde alle strade più congestionate. Numerose sono le ricerche effettuate in tal senso, sia per quanto concerne l’algoritmo da adottare, che per quanto riguarda la sua relativa implementazione.
+
+In questo lavoro di tesi si è selezionato uno degli algoritmi più comuni, lo si è modificato per migliorarne ulteriormente le performance, e lo si è applicato ad uno scenario di simulazione reale, anch’esso realizzato in maniera autonoma. È da chiarire che l’obiettivo non è stato quello di snellire il traffico quando tutte le arterie che convergono nell’incrocio sono sature di veicoli, quanto più di ottenere buone performance in questa situazione, migliorando molto però il comportamento dei semafori in condizioni di squilibrio, ovvero quando le strade affollate sono solo alcune delle confluenti.
+
+Nello specifico, in primo luogo è stato necessario stabilire la tipologia di incrocio da analizzare, e in tal senso è stata scelta una intersezione a raso a quattro bracci \cite{incrocio}, in cui ogni direzione è percorribile sia in un senso che in quello opposto, e nessuna svolta è vietata. A tal proposito, si è reso fondamentale creare il modello che simula il singolo incrocio in Matlab, Simulink e SimEvents, per monitorare l’andamento del traffico variando alcuni parametri come il tasso di arrivo dei veicoli e la durata del verde, iniziando da un classico algoritmo di gestione statica, implementato comunemente in questo tipo di giunzioni.
+
+Il passo successivo è stato quello di stabilire quali sono le direzioni fra loro compatibili, alle quali cioè è possibile concedere il verde contemporaneamente senza causare incidenti. È da sottolineare che questo lavoro viene normalmente svolto durante il posizionamento e la regolazione di un semaforo classico, e che per ogni tipo di incrocio esistono tabelle indicanti proprio tutte queste direzioni compatibili. La creazione di una tabella di questo genere è il primo passo per la definizione di un algoritmo di gestione ottimizzata dell’incrocio stesso.
+
+Per quanto concerne l’algoritmo ideato, esso si basa su una proposta di \textit{Maram Bani Younes} e \textit{Azzedine Boukerche} \cite{itlc}, modificata ed opportunamente adattata. Si è proceduto dapprima a tradurre l’idea in codice, applicandola ad un singolo incrocio, sfruttando il modello realizzato in precedenza, per poi proseguire con la realizzazione di un modello più complesso e a più ampio respiro, che coinvolge nove diverse intersezioni, collegate fra loro, per simulare una situazione in cui le automobili che lasciano una giunzione confluiscano nella successiva.
+
+A tal proposito, si è reso opportuno modificare ancora una volta l’algoritmo, per adattarlo ad una situazione di questo genere, ed i dati ricavati sono stati confrontati con quelli provenienti dallo stesso modello a nove incroci, gestito però con una turnazione classica dei semafori.
+
+Nel \textbf{capitolo 1} viene dunque introdotto il primo modello realizzato, quello del singolo incrocio, e ne vengono analizzate le performance al variare del tasso di generazione delle auto e alla durata del verde per ciascuna strada, senza l’utilizzo di un algoritmo a priorità dinamica.
+
+Nel \textbf{capitolo 2} viene esplicato il funzionamento dell’algoritmo sopracitato, le modifiche apportate, e viene mostrato come la sua applicazione al modello precedente, a parità di altre condizioni, migliori le performance dell’incrocio, misurate in termini di numero di auto in coda e tempo di attesa medio delle stesse.
+
+Nel \textbf{capitolo 3} viene presentato il secondo modello realizzato, relativo ad una situazione con nove incroci interconnessi, e ne vengono analizzate le prestazioni in assenza di un algoritmo di controllo.
+
+Nel \textbf{capitolo 4}, in fine, si analizza il comportamento di tale modello in presenza di un algoritmo che tenga conto del numero di auto in coda in ciascuna corsia, e di altri parametri esterni, confrontando i risultati ottenuti con quelli del capitolo precedente.
+
