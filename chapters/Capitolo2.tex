@@ -67,7 +67,7 @@ Inoltre, è stata individuata una grande lacuna nell’algoritmo oggetto della p
 
 Considerando esclusivamente il \textit{codice \ref{pseudocode}}, infatti, si nota che se in una strada continuano a confluire veicoli più velocemente che nelle altre, a questa sarà sempre concesso il verde. Questo comportamento da un lato è positivo perché si va a decongestionare tale corsia, ma è ovviamente improponibile, in quanto potrebbe paradossalmente capitare che un semaforo resti rosso per ore ed ore, e che una persona sia costretta ad attendere un tempo esagerato prima di passare, perché la sua strada è meno affollata.
 
-È stato scelto dunque di implementare un meccanismo di gestione della \textit{starvation} mediante un algoritmo \textit{LRU} (Least Recently Used) opportunamente modificato. Ad ogni corsia è associato un contatore, ed ogni qual volta ad una strada viene concesso il verde, il suo contatore viene azzerato, mentre quello delle altre si incrementa del numero di secondi per cui è stato concesso il verde alla corsia suddetta. In questo modo, quando un contatore raggiunge un valore limite (liberamente impostabile), la relativa strada ottiene priorità massima, e l’algoritmo viene applicato in maniera identica (calcolo del tempo del verde e selezione della complementare) come se essa fosse quella più affollata.
+È stato scelto dunque di implementare un meccanismo di gestione della \textit{starvation} mediante un algoritmo \textit{LRU} (Least Recently Used) opportunamente modificato. Ad ogni corsia è associato un contatore, ed ogni qual volta ad una strada viene concesso il verde, il suo contatore viene azzerato, mentre quello delle altre si incrementa del numero di secondi per cui è stato concesso il verde alla corsia suddetta. In questo modo, quando un contatore raggiunge un valore limite (liberamente impostabile), la relativa strada ottiene priorità massima, e l’algoritmo viene applicato in maniera identica (calcolo del tempo del verde e selezione della complementare) come se essa fosse quella più affollata. In particolare il tempo massimo di attesa prima che scatti la starvation è stato impostato a 5 minuti.
 
 È anche da notare che sono stati apportati alcuni minimi cambiamenti al modello: le code sono state collegate agli ingressi del blocco contenente la funzione da eseguire, comunicando ad essa il numero di veicoli presenti, ed il canale di \textit{feedback} è stato utilizzato per implementare il meccanismo della gestione della \textit{starvation}, e non per conoscere a quale semaforo è stato concesso il verde nell’esecuzione precedente, informazione ora inutile. Non è stato variato altro, se non, ovviamente, il codice nel blocco \textit{Matlab Function}, quindi non si ravvisa la necessità di approfondire nuovamente la necessità di descrivere nei dettagli nuovamente l'intero modello, il cui schema è comunque presente alla pagina seguente, seguito dal codice che lo governa.
 
@@ -258,7 +258,7 @@ Le differenze con un normale algoritmo di gestione di una giunzione, come quello
 
 \section{Il modello per confrontare le diverse gestioni del singolo incrocio}
 
-I benefici esposti, ovviamente, devono trovare riscontro in un confronto imparziale ed assolutamente valido fra i modelli presentati, affinché a partire dai medesimi dati in input (le automobili generate), e con gli stessi parametri (tasso di generazione, tempo di servizio interno agli \textit{Entity Server}) essi gestiscano l'incrocio secondo la propria logica. Si è scelto, pertanto, di creare in un nuovo workspace il modello identificato dalla figura a pagina seguente \textbf{INSERIRE NUMERO}. Si può notare come al suo interno siano presenti tre blocchi principali, ognuno dei quali è rappresentativo di un algoritmo di gestione. Cliccando infatti nei tre blocchi presenti, di tipo \textit{Subsystem}, si comprende subito come questi siano in realtà esattamente i modelli precedentemente descritti. Il primo, quello più in alto, è quello presentato nel \textit{capitolo \ref{capitolo1}}, relativo ad una gestione statica (\textit{figura \ref{fig: modelloSingoloIncrocio}}). Quello in basso a sinistra invece si riferisce al modello di controllo dinamico, di cui si è parlato in questo capitolo (\textit{figura \ref{fig:modellosingoloincrocioalgoritmo}}), mentre quello in basso a destra è perfettamente identico a quest'ultimo, eccezion fatta per la gestione della starvation, che si è eliminata. Ciò è stato fatto per capire come tale gestione, che comunque resta assolutamente necessaria, interferisca con il normale funzionamento dell'algoritmo stesso.
+I benefici esposti, ovviamente, devono trovare riscontro in un confronto imparziale ed assolutamente valido fra i modelli presentati, affinché a partire dai medesimi dati in input (le automobili generate), e con gli stessi parametri (tasso di generazione, tempo di servizio interno agli \textit{Entity Server}) essi gestiscano l'incrocio secondo la propria logica. Si è scelto, pertanto, di creare in un nuovo workspace il modello identificato dalla \textit{figura \ref{fig:gatecontrolcompare}}. Si può notare come al suo interno siano presenti tre blocchi principali, ognuno dei quali è rappresentativo di un algoritmo di gestione. Guardando infatti ai tre blocchi presenti, si comprende subito come questi siano in realtà esattamente i modelli precedentemente descritti. Il primo, quello più in alto a sinistra, è quello presentato nel \textit{capitolo \ref{capitolo1}}, relativo ad una gestione statica (\textit{figura \ref{fig: modelloSingoloIncrocio}}). Quello in basso a sinistra invece si riferisce al modello di controllo dinamico, di cui si è parlato in questo capitolo (\textit{figura \ref{fig:modellosingoloincrocioalgoritmo}}), mentre quello in basso a destra è perfettamente identico a quest'ultimo, eccezion fatta per la gestione della starvation, che si è eliminata. Ciò è stato fatto per capire come tale gestione, che comunque resta assolutamente necessaria, interferisca con il normale funzionamento dell'algoritmo stesso.
 
 Nello specifico, in questo terzo modello, si è provveduto semplicemente a commentare la seguente porzione di codice, lasciando tutto il resto invariato.
 \newline
@@ -278,22 +278,239 @@ Nello specifico, in questo terzo modello, si è provveduto semplicemente a comme
    end
 \end{lstlisting}
 
-Gli \textit{Entity Generator}, poi, sono stati spostati all'esterno, e collegati a dei blocchi di tipo \textbf{Entity Replicator\cite{entityreplicator}}, in modo tale che appena una entità viene generata in una corsia specifica, questa venga subito inviata ai tre modelli. In questo modo i tre incroci sono esattamente identici sia per quanto riguarda il numero di entità che devono gestire che per quanto concerne quando queste si presentano, tutto questo per garantire l'assoluta imparzialità delle condizioni, precedentemente citata.
+Gli \textit{Entity Generator}, poi, sono stati collegati a dei blocchi di tipo \textbf{Entity Replicator\cite{entityreplicator}}, in modo tale che appena una entità viene generata in una corsia specifica, questa venga subito inviata ai tre modelli contemporaneamente. In questo modo i tre incroci sono esattamente identici sia per quanto riguarda il numero di entità che devono gestire che per quanto concerne quando queste si presentano, tutto questo per garantire l'assoluta imparzialità delle condizioni, precedentemente citata.
 \newline
 
 Dunque il workflow è il seguente: quando una entità viene generata, questa viene inviata a tutti e tre gli incroci, in corrispondenza della stessa corsia e nello stesso istante di tempo. La simulazione parte allo stesso istante per tutti e tutti sono configurati secondo gli stessi parametri. Al termine della simulazione tutti gli incroci producono tre grafici per ogni corsia, relativi al tempo di attesa medio, al numero di macchine totali che hanno attraversato tale strada ed al numero medio di macchine in coda in funzione dell'ora del giorno. Confrontando i grafici di una stessa strada, e facendo questo per ogni strada presente, si ottiene una chiara idea di quale dei tre algoritmi stia funzionando meglio.
 
 \newpage
 
+\begin{figure}[H]
+  \includegraphics[width=1\textwidth]{GateControlCompare.pdf}
+  \caption{Modello per comparare gli algoritmi utilizzati per la gestione di un singolo incrocio}
+  \label{fig:gatecontrolcompare}
+\end{figure}
+
+\newpage
 \section{I risultati ottenuti}
-Per le seguenti simulazioni sono stati analizzati due possibili scenari: il primo con dei tassi di generazione randomici, esattamente come presentato nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 20 e 35. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}). In una configurazione di questo genere sono stati ottenuti i risultati riportati nella seguente tabella, a fronte di questi valori di $\mu$ generati.
+Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei tassi di generazione randomici, esattamente come nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 23 e 35. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}). In una configurazione di questo genere sono stati ottenuti i risultati riportati nelle seguenti tabelle, a fronte di questi valori di $\mu$ generati.
 \newline
 
-\textbf{INSERIRE TABELLA. PER OGNI CORSIA TEMPI MEDI ATTESA E MAX MACCHINE}
-\newline
+\begin{table}[H]
+\centering
+\begin{tabular}{|C{2cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|}
+  \hline
+  \multicolumn{7}{|c|}{\large Prima simulazione: prime quattro corsie} \\\hline\hline
+  \textbf{Intervallo} &
+  \multicolumn{3}{C{5.8cm}|}{\textbf{Stima tempo interarrivo con minimo $\mu$}} &
+  \multicolumn{3}{C{5.8cm}|}{\textbf{Stima tempo interarrivo con massimo $\mu$}} \\\hline
+  $[23, 35]$ &
+  \multicolumn{3}{c|}{$15.94s$} &
+  \multicolumn{3}{c|}{$24.26$} \\\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Ovest \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{24.1705} 
+  & \multicolumn{2}{C{3.7cm}|}{$16.75s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2940} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 25
+  & $59.44s$
+  & 11
+  & $19.18s$
+  & 13
+  & $19.07s$\\\hline\hline
+    \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Ovest \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{26.3420} 
+  & \multicolumn{2}{C{3.7cm}|}{$18.26s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2809} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 18
+  & $52.61s$
+  & 8
+  & $17.27s$
+  & 10
+  & $17.34s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Nord \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{29.5626} 
+  & \multicolumn{2}{C{3.7cm}|}{$20.49s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2384} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 10
+  & $38.86s$
+  & 9
+  & $24.02s$
+  & 10
+  & $22.85s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Nord \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{34.4901} 
+  & \multicolumn{2}{C{3.7cm}|}{$23.91s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2049} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 11
+  & $37.12s$
+  & 8
+  & $21.31s$
+  & 7
+  & $21.43s$\\\hline
+\end{tabular}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - prime quattro corsie}
+\label{table:keytable}
+\end{table}
+\newpage
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|C{2cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|}
+  \hline
+  \multicolumn{7}{|c|}{\large Prima simulazione: ultime quattro corsie} \\\hline\hline
+  \textbf{Intervallo} &
+  \multicolumn{3}{C{5.8cm}|}{\textbf{Stima tempo interarrivo con minimo $\mu$}} &
+  \multicolumn{3}{C{5.8cm}|}{\textbf{Stima tempo interarrivo con massimo $\mu$}} \\\hline
+  $[23, 35]$ &
+  \multicolumn{3}{c|}{$15.94s$} &
+  \multicolumn{3}{c|}{$24.26$} \\\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Est \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{34.5787} 
+  & \multicolumn{2}{C{3.7cm}|}{$23.97s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2152} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 9
+  & $36.93s$
+  & 7
+  & $18.76s$
+  & 8
+  & $19.08s$\\\hline\hline
+    \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Est \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{24.8914} 
+  & \multicolumn{2}{C{3.7cm}|}{$17.25s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2928} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 32
+  & $65.24s$
+  & 11
+  & $22.33s$
+  & 11
+  & $22.48s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Sud \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{34.6471} 
+  & \multicolumn{2}{C{3.7cm}|}{$20.02s$} 
+  & \multicolumn{2}{C{3.7cm}|}{1996} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 11
+  & $37.92s$
+  & 8
+  & $27.96s$
+  & 10
+  & $27.16s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Sud \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{34.4860} 
+  & \multicolumn{2}{C{3.7cm}|}{$23.90s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2175} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 10
+  & $36.63s$
+  & 11
+  & $29.44s$
+  & 8
+  & $27.69s$\\\hline
+\end{tabular}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - ultime quattro corsie}
+\label{table:keytable}
+\end{table}
+
+
 
 Sono riportati, inoltre, alcuni grafici indicativi, relativi ad una singola corsia (sempre la stessa, quella del braccio ovest relativa alla svolta a sinistra), per ciascuno dei tre modelli, inerenti al tempo medio d'attesa ed al numero di macchine in coda in funzione dell'ora del giorno.
 
+
+\textbf{TABELLA CON MU FISSI PER CONGESTIONARE}
 
 
 
