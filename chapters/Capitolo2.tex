@@ -281,7 +281,14 @@ Nello specifico, in questo terzo modello, si è provveduto semplicemente a comme
 Gli \textit{Entity Generator}, poi, sono stati collegati a dei blocchi di tipo \textbf{Entity Replicator\cite{entityreplicator}}, in modo tale che appena una entità viene generata in una corsia specifica, questa venga subito inviata ai tre modelli contemporaneamente. In questo modo i tre incroci sono esattamente identici sia per quanto riguarda il numero di entità che devono gestire che per quanto concerne quando queste si presentano, tutto questo per garantire l'assoluta imparzialità delle condizioni, precedentemente citata.
 \newline
 
-Dunque il workflow è il seguente: quando una entità viene generata, questa viene inviata a tutti e tre gli incroci, in corrispondenza della stessa corsia e nello stesso istante di tempo. La simulazione parte allo stesso istante per tutti e tutti sono configurati secondo gli stessi parametri. Al termine della simulazione tutti gli incroci producono tre grafici per ogni corsia, relativi al tempo di attesa medio, al numero di macchine totali che hanno attraversato tale strada ed al numero medio di macchine in coda in funzione dell'ora del giorno. Confrontando i grafici di una stessa strada, e facendo questo per ogni strada presente, si ottiene una chiara idea di quale dei tre algoritmi stia funzionando meglio.
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.3\textwidth]{Replicator.pdf}
+  \caption{Entity Replicator}
+  \label{fig:}
+\end{figure}
+
+Dunque il workflow è il seguente: quando una entità viene generata, questa viene inviata a tutti e tre gli incroci, in corrispondenza della stessa corsia e nello stesso istante di tempo. La simulazione parte allo stesso istante per tutti e tutti sono configurati secondo gli stessi parametri. Al termine della simulazione tutti gli incroci producono tre grafici per ogni corsia, relativi al tempo di attesa medio, al numero di macchine totali che hanno attraversato tale strada ed al numero di macchine in coda in funzione dell'ora del giorno. Confrontando i grafici di una stessa strada, e facendo questo per ogni strada presente, si ottiene una chiara idea di quale dei tre algoritmi stia funzionando meglio.
 
 \newpage
 
@@ -293,7 +300,7 @@ Dunque il workflow è il seguente: quando una entità viene generata, questa vie
 
 \newpage
 \section{I risultati ottenuti}
-Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei tassi di generazione randomici, esattamente come nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 23 e 35. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}). In una configurazione di questo genere sono stati ottenuti i risultati riportati nelle seguenti tabelle, a fronte di questi valori di $\mu$ generati.
+Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei tassi di generazione randomici, esattamente come nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 23 e 35 ed un tempo di servizio fra $4s$ e $6s$ come spiegato in precedenza. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}). In una configurazione di questo genere sono stati ottenuti i risultati riportati nelle seguenti tabelle.
 \newline
 
 \begin{table}[H]
@@ -396,7 +403,7 @@ Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei 
   & 7
   & $21.43s$\\\hline
 \end{tabular}
-\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - prime quattro corsie}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - prime quattro corsie - $\mu$ casuali}
 \label{table:keytable}
 \end{table}
 \newpage
@@ -501,16 +508,398 @@ Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei 
   & 8
   & $27.69s$\\\hline
 \end{tabular}
-\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - ultime quattro corsie}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio - ultime quattro corsie - $\mu$ casuali}
 \label{table:keytable}
 \end{table}
 
 
 
 Sono riportati, inoltre, alcuni grafici indicativi, relativi ad una singola corsia (sempre la stessa, quella del braccio ovest relativa alla svolta a sinistra), per ciascuno dei tre modelli, inerenti al tempo medio d'attesa ed al numero di macchine in coda in funzione dell'ora del giorno.
+\newline
+
+\textbf{Nota:} sui grafici relativi ai tempi di attesa viene riportata un'attesa stimata secondo una media temporale cumulativa, ovvero istante per istante sono sommati i tempi di attesa di ogni automobile che ha raggiunto l'incrocio e sono divisi per tale numero complessivo di auto. L'attesa relativa alla gestione della starvation, invece, viene calcolata in base al tempo trascorso fra due concessioni consecutive del verde allo stesso semaforo. Risulta chiaro quindi come in realtà la starvation intervenga anche se nei grafici che seguono il tempo di attesa medio non raggiunge mai i 5 minuti, in quanto sono due valori diversi. Ci si può rendere conto del fatto che sia intervenuta la starvation nella configurazione relativa dal fatto che i valori ottenuti si discostino da quelli inerenti alla gestione dinamica senza starvation, seppur di poco. Essendo infatti gli input ed i parametri dei due modelli identici, se la starvation non fosse intervenuta, anche gli output sarebbero dovuti essere uguali.
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=1\textwidth]{figuraPartiti.pdf}
+  \caption{Auto che hanno attraversato la corsia Ovest - Sinistra (uguale per i tre modelli di gestione)}
+  \label{fig:partitiMuRandom}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraCodaGestioneStatica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione statica del singolo incrocio - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraAttesaGestioneStatica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione statica del singolo incrocio - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\newpage
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraCodaGestioneDinamica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraAttesaGestioneDinamica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\newpage
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraCodaGestioneDinamicaStarvation.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraAttesaGestioneDinamicaStarvation.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - $\mu$ casuali - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\newpage
+
+Si può notare dalla tabella precedente e dai grafici riportati che per ogni situazione l'algoritmo di gestione dinamica applicato si comporta nettamente meglio di quello relativo ad una gestione statica, comunemente implementato, in una configurazione bilanciata, ovvero con un numero di auto totali che attraversano la giunzione paragonabile per ogni corsia. 
+
+Nello specifico è interessante notare come vengano abbattuti drasticamente i tempi di attesa medi delle auto, e come nelle corsie più affollate anche il massimo numero di auto in coda raggiunto sia nettamente inferiore con la gestione proposta. Questo comporta innumerevoli benefici al traffico cittadino, meno congestionanto e quindi, di conseguenza, anche con meno emissioni di scarichi nocivi. 
+
+Analizzando la corsia \textit{Ovest - Sinistra}, ovvero relativa alle auto che dal braccio ovest vogliono svoltare a sinistra, presa come esempio nella generazione dei grafici, in particolare, è facile comprendere che il massimo tempo di attesa raggiunto con la gestione statica sia di ben $80s$, a fronte dei $25s$ dei due algoritmi dinamici, così come è ben rilevabile che il massimo numero di auto in coda passi da 25 a 11 / 13.
+
+Confrontando poi la gestione con e senza starvation si nota come i due siano essenzialmente equivalenti. Questo sia perché la gestione della starvation interviene molto raramente, sia perché comunque, anche gestendo questa particolare variabile, l'algoritmo resta ottimizzato rispetto alla ricerca della corsia complementare a quella in attesa.
+
+Queste considerazioni valgono per qualsiasi corsia, come emerge dalla tabella riportata, ed è da sottolineare che sono stati generati solo i grafici relativi ad una singola strada per praticità, mentre tutti i valori ottenuti sono stati fedelmente trascritti nella suddetta tabella.
+\newline
+
+Nella seguente simulazione ci si è concentrati sulla modellazione di una configurazione sbilanciata, con strade molto più affollate di altre, per comprendere anche in questo caso quanto sia pratico utilizzare un algoritmo di gestione dinamica. Nello specifico le corsie relative ai bracci \textit{Nord} e \textit{Sud} sono state volutamente congestionate, fissando il valore del parametro $\mu$ a 25, di base, a cui, si ricorda, deve essere sottratto un numero pari a 6 durante le ore di punta (mattina e pranzo) ed un numero pari a 3 durante l'ora di cena, mentre viene aggiunto un valore pari ad 80 durante la notte, per simulare il normale afflusso dei veicoli rispetto allo specifico periodo della giornata. Una spiegazione più approfondita di tutto ciò è stata già data nel \textit{Capitolo \ref{capitolo1}}.
 
 
-\textbf{TABELLA CON MU FISSI PER CONGESTIONARE}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|C{2cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|}
+  \hline
+  \multicolumn{7}{|c|}{\large Seconda simulazione: prime quattro corsie} \\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Ovest \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{60} 
+  & \multicolumn{2}{C{3.7cm}|}{$41.59s$} 
+  & \multicolumn{2}{C{3.7cm}|}{1238} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 7
+  & $29.81s$
+  & 5
+  & $14.93s$
+  & 5
+  & $14.36s$\\\hline\hline
+    \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Ovest \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{60} 
+  & \multicolumn{2}{C{3.7cm}|}{$41.59s$} 
+  & \multicolumn{2}{C{3.7cm}|}{1237} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 6
+  & $29.56s$
+  & 5
+  & $17.30s$
+  & 5
+  & $17.29s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Nord \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{25} 
+  & \multicolumn{2}{C{3.7cm}|}{$17.33s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2859} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 17
+  & $57.01s$
+  & 7
+  & $14.31s$
+  & 7
+  & $14.05s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Nord \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{25} 
+  & \multicolumn{2}{C{3.7cm}|}{$17.33s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2872} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 14
+  & $51.36s$
+  & 7
+  & $12.83s$
+  & 7
+  & $13.18s$\\\hline
+\end{tabular}
+\caption{table}
+\label{table:keytable}
+\end{table}
+\newpage
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|C{2cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|C{1.65cm}|}
+  \hline
+  \multicolumn{7}{|c|}{\large Seconda simulazione: ultime quattro corsie} \\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Est \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{60} 
+  & \multicolumn{2}{C{3.7cm}|}{$41.59s$} 
+  & \multicolumn{2}{C{3.7cm}|}{1226} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 5
+  & $32.61s$
+  & 4
+  & $17.11s$
+  & 4
+  & $17.74s$\\\hline\hline
+    \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Est \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{60} 
+  & \multicolumn{2}{C{3.7cm}|}{$41.59s$} 
+  & \multicolumn{2}{C{3.7cm}|}{1254} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 6
+  & $33.42s$
+  & 5
+  & $21.91s$
+  & 5
+  & $21.05s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Sud \newline --- \newline Sinistra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{25} 
+  & \multicolumn{2}{C{3.7cm}|}{$17.33s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2875} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 15
+  & $53.73s$
+  & 6
+  & $17.69s$
+  & 6
+  & $17.86s$\\\hline\hline
+  \multirow{7}{2cm}{\centering \textit{\footnotesize{Corsia Sud \newline --- \newline Dritto/Destra}}}
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{$\mu$}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Tempo di arrivo medio}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\textbf{\footnotesize{Numero di auto totale}}} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{25} 
+  & \multicolumn{2}{C{3.7cm}|}{$17.33s$} 
+  & \multicolumn{2}{C{3.7cm}|}{2885} \\\cline{2-7}
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione statica}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica senza starvation}}} 
+  & \multicolumn{2}{C{3.7cm}|}{\footnotesize{\textbf{Gestione dinamica con starvation}}} \\\cline{2-7}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}
+  & \scriptsize{Max numero auto in coda}
+  & \scriptsize{Tempo di attesa medio}\\\cline{2-7}
+  & 20
+  & $55.14s$
+  & 6
+  & $16.86s$
+  & 8
+  & $17.77s$\\\hline
+\end{tabular}
+\caption{table}
+\label{table:keytable}
+\end{table}
+
+Di seguito sono riportati alcuni grafici relativi alla corsia \textit{Ovest - Sinistra}, poco affollata, ed a quella \textit{Nord - Sinistra}, più congestionata.
+\newpage
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraPartiti.pdf}
+  \caption{Auto che hanno attraversato la corsia Ovest - Sinistra (uguale per i tre modelli di gestione) - configurazione sbilanciata}
+  \label{fig:partitiMuSbil}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraCodaGestioneStatica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione statica del singolo incrocio - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraAttesaGestioneStatica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione statica del singolo incrocio - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraCodaGestioneDinamica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraAttesaGestioneDinamica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraCodaGestioneDinamicaStarvation.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+\newpage
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraWestSinistraAttesaGestioneDinamicaStarvation.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - Configurazione sbilanciata - corsia Ovest - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\newpage
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraPartiti.pdf}
+  \caption{Auto che hanno attraversato la corsia Nord - Sinistra (uguale per i tre modelli di gestione) - configurazione sbilanciata}
+  \label{fig:partitiMuSbil}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraCodaGestioneStatica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione statica del singolo incrocio - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraAttesaGestioneStatica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione statica del singolo incrocio - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraCodaGestioneDinamica.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+
+\newpage
+
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraAttesaGestioneDinamica.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio senza starvation - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraCodaGestioneDinamicaStarvation.pdf}
+  \caption{Numero di auto in coda in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+\newpage
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.9\textwidth]{figuraNordSinistraAttesaGestioneDinamicaStarvation.pdf}
+  \caption{Tempi di attesa in funzione dell'ora del giorno - Gestione dinamica del singolo incrocio con starvation - Configurazione sbilanciata - corsia Nord - Sinistra}
+  \label{fig:}
+\end{figure}
+
+Anche in questo caso si notano gli enormi benefici apportati da una gestione intelligente dell'incrocio, implementando un algoritmo di gestione come quello proposto. In particolare appare chiaro come non solo vengano abbattuti i tempi di attesa, sia per le corsie affollate che per quelle con meno automobili, ma anche come questi vengano resi pressoché omogenei per tutte le corsie, e come l'ingorgo sia gestito egregiamente.
+
+Per quanto concerne il numero massimo di auto in coda, si ha un sostanziale decremento per le strade più congestionate, mentre questo rimane stabile per quelle con meno entità, a fronte però di attese ridotte. Anche in questo caso la gestione della starvation non penalizza lo smaltimento delle automobili.
+\newline
+
+In conclusione, dopo numerosi test svolti, si può affermare con certezza che l'algoritmo presentato sia funzionante e gestisca decisamente meglio gli incroci, in qualsiasi condizione, rispetto a quello tradizionale. Chiaramente bisogna considerare il fatto che si è esclusivamente analizzato il comportamento del codice presentato quando applicato ad una singola giunzione, quindi sorge spontanea la domanda: "cosa succederebbe se questo venisse applicato ad un cluster di incroci interconnessi fra loro? I benefici sarebbero altrettanto notevoli?". Per la risposta a questo legittimo interrogativo, nei prossimi capitoli verrà presentato un modello a 9 incroci interconnessi e comunicanti, basato su quanto già esposto, e sarà dimostrato come anche in una simulazione di questo genere sia indubbiamente conveniente gestire tali intersezioni dinamicamente.
+
+
+
+
+
+
+
+
+
+
 
 
 
