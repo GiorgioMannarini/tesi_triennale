@@ -1,12 +1,12 @@
 %inizio capitolo 2
-\chapter{Algoritmo di gestione dinamica applicato ad un singolo incrocio}
+\chapter{Algoritmo di gestione dinamica applicato ad un singolo incrocio \label{capitolo2}}
 
 In questo capitolo si vuole analizzare il comportamento dello stesso incrocio visto in precedenza con un algoritmo di gestione ottimizzata, che conti il numero di auto in ciascuna corsia e in base a questo e ad altri parametri conceda il verde per un numero di secondi variabile. È da precisare che l’algoritmo utilizzato si basa su quello proposto da \textit{Maram Bani Younes e Azzedine Boukerche}\cite{itlc}, tuttavia sono state effettuate alcune importanti modifiche, che verranno analizzate nel corso della trattazione. 
 
 Si è previsto,  oltre che un raffronto fra l'algoritmo di gestione statica e quello sviluppato in autonomia, modificando quanto proposto dai due ingegneri, anche un meccanismo per valutare l'efficacia di queste modifiche, confrontando il nuovo codice con una implementazione di quello presente nella pubblicazione citata. Tutti i confronti, con i relativi grafici e le relative conclusioni, verranno presentati alla fine di questo capitolo, dopo aver descritto nel dettaglio tutti gli aspetti relativi alle modifiche apportate al modello e ai meccanismi implementativi adottati.
 
 
-Per quanto riguarda lo pseudocodice progettato dai due ingegneri, è disponivile alla seguente pagina.
+Per quanto riguarda lo pseudocodice progettato dai due ingegneri, è disponibile alla seguente pagina.
 \newpage
 \begin{lstlisting}[language=C,label=pseudocode,caption=Pseudocodice di gestione dinamica di un incrocio]
 while d_i di una qualsiasi corsia > 0 do
@@ -67,9 +67,16 @@ Inoltre, è stata individuata una grande lacuna nell’algoritmo oggetto della p
 
 Considerando esclusivamente il \textit{codice \ref{pseudocode}}, infatti, si nota che se in una strada continuano a confluire veicoli più velocemente che nelle altre, a questa sarà sempre concesso il verde. Questo comportamento da un lato è positivo perché si va a decongestionare tale corsia, ma è ovviamente improponibile, in quanto potrebbe paradossalmente capitare che un semaforo resti rosso per ore ed ore, e che una persona sia costretta ad attendere un tempo esagerato prima di passare, perché la sua strada è meno affollata.
 
-È stato scelto dunque di implementare un meccanismo di gestione della \textit{starvation} mediante un algoritmo \textit{LRU} (Least Recently Used) opportunamente modificato. Ad ogni corsia è associato un contatore, ed ogni qual volta ad una strada viene concesso il verde, il suo contatore viene azzerato, mentre quello delle altre si incrementa del numero di secondi per cui è stato concesso il verde alla corsia suddetta. In questo modo, quando un contatore raggiunge un valore limite (liberamente impostabile), la relativa strada ottiene priorità massima, e l’algoritmo viene applicato in maniera identica (calcolo del tempo del verde e selezione della complementare) come se essa fosse quella più affollata. In particolare il tempo massimo di attesa prima che scatti la starvation è stato impostato a 5 minuti.
+È stato scelto dunque di implementare un meccanismo di gestione della \textit{starvation} mediante un algoritmo \textit{LRU} (Least Recently Used) opportunamente modificato. Ad ogni corsia è associato un contatore, ed ogni qual volta ad una strada viene concesso il verde, il suo contatore viene azzerato, mentre quello delle altre si incrementa del numero di secondi per cui è stato concesso il verde alla corsia suddetta. In questo modo, quando un contatore raggiunge un valore limite (liberamente impostabile), la relativa strada ottiene priorità massima, e l’algoritmo viene applicato in maniera identica (calcolo del tempo del verde e selezione della complementare) come se essa fosse quella più affollata. In particolare il tempo massimo di attesa prima che scatti la \textit{starvation} è stato impostato a 2.5 minuti.
 
-È anche da notare che sono stati apportati alcuni minimi cambiamenti al modello: le code sono state collegate agli ingressi del blocco contenente la funzione da eseguire, comunicando ad essa il numero di veicoli presenti, ed il canale di \textit{feedback} è stato utilizzato per implementare il meccanismo della gestione della \textit{starvation}, e non per conoscere a quale semaforo è stato concesso il verde nell’esecuzione precedente, informazione ora inutile. Non è stato variato altro, se non, ovviamente, il codice nel blocco \textit{Matlab Function}, quindi non si ravvisa la necessità di approfondire nuovamente la necessità di descrivere nei dettagli nuovamente l'intero modello, il cui schema è comunque presente alla pagina seguente, seguito dal codice che lo governa.
+È anche da notare che sono stati apportati alcuni minimi cambiamenti al modello: le code sono state collegate agli ingressi del blocco contenente la funzione da eseguire, comunicando ad essa il numero di veicoli presenti, inserendo delle \textbf{Input Port \cite{inputport}} nel blocco Function Call Subsystem, ed il canale di \textit{feedback} è stato utilizzato per implementare il meccanismo della gestione della \textit{starvation}, e non per conoscere a quale semaforo è stato concesso il verde nell’esecuzione precedente, informazione ora inutile. Non è stato variato altro, se non, ovviamente, il codice nel blocco \textit{Matlab Function}, quindi non si ravvisa la necessità di descrivere nei dettagli nuovamente l'intero modello, il cui schema è comunque presente alla pagina seguente, seguito dal codice che lo governa.
+\newline
+\begin{figure}[H]
+\centering
+  \includegraphics[width=0.25\textwidth]{InputPort.pdf}
+  \caption{Input Port}
+  \label{fig:inputport}
+\end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=1\textwidth]{SingoloIncrocioAlgoritmo.pdf}
@@ -78,7 +85,7 @@ Considerando esclusivamente il \textit{codice \ref{pseudocode}}, infatti, si not
 \end{figure}
 \newpage
 
-\begin{lstlisting}[language=Matlab,label=key,caption=Implementazione dell'algoritmo di gestione dinamica di un singolo incrocio]
+\begin{lstlisting}[language=Matlab,label=algoritmodin,caption=Implementazione dell'algoritmo di gestione dinamica di un singolo incrocio]
 function [delay, y1, y2, y3, y4, y5, y6, y7, y8, feedback] = fcn(u1, u2, u3, u4, u5, u6, u7, u8, history)
 
 
@@ -102,13 +109,13 @@ M = ([u1 u2; u3 u4; u5 u6; u7 u8;]);
 Tv = 5;
  
 % Massimo tempo del verde
-MaxGreen = 60;
+MaxGreen = 35;
  
 % Minimo tempo del verde
-MinGreen = 10;
+MinGreen = 15;
  
-% Controllo sulla starvation (LRU). Tempo di attesa massimo: 5 minuti
-starvation = 300;
+% Controllo sulla starvation (LRU). Tempo di attesa massimo: 2.5 minuti
+starvation = 150;
  
 % Cerco il massimo
 [R, C] = size(M);
@@ -182,7 +189,7 @@ end
 \end{lstlisting}
 \newpage
 \section{Spiegazione del codice implementato}
-In primo luogo vengono inizializzate le variabili in uscita della funzione, corrispondenti al valore di trigger degli otto entity gate rappresentanti le varie corsie. Di default questi valori sono posti a 0 (semaforo rosso). In input si accetta il numero di veicoli presenti in ogni coda nell'istante in cui la funzione viene richiamata, nonché il vettore \textit{history}, usato per gestire la starvation, il cui significato sarà chiaro più avanti.
+In primo luogo vengono inizializzate le variabili in uscita della funzione, corrispondenti al valore di trigger degli otto entity gate rappresentanti i vari semafori. Di default questi valori sono posti a 0 (semaforo rosso). In input si accetta il numero di veicoli presenti in ogni coda nell'istante in cui la funzione viene richiamata, nonché il vettore \textit{history}, usato per gestire la \textit{starvation}, il cui significato sarà chiaro più avanti.
 
 I due \textit{cicli for} annidati servono ad individuare la strada con il numero di veicoli più elevato, purché non si verifichi il caso di \textit{starvation}. Tale strada (individuata da due indici, \textit{i} e \textit{j} all’interno della matrice \textit{M}, matrice che organizza gli otto input indipendenti), viene poi data in pasto alla funzione \textit{getCandidates}, il cui codice è alla pagina seguente e che restituisce gli indici relativi alla matrice M che individuano le due strade che possono essere scelte assieme alla principale. A questo punto fra le due corsie complementari candidate viene scelta, come già detto, quella più affollata. Viene calcolato il tempo da concedere al verde in funzione del numero di veicoli della strada scelta come principale, e vengono effettuati i controlli con il tempo minimo ed il tempo massimo, precedentemente dichiarati come costanti.
 
@@ -191,6 +198,33 @@ Successivamente, ogni elemento del vettore \textit{History}, il quale contiene i
 In output viene inviato \textit{1} agli \textit{Entity Gate} che devono aprirsi, corrispondenti alle strade individuate, e \textit{0} a tutti gli altri. 
 
 Oltre a queste informazioni rappresenta un output anche il \textit{delay}, ovvero proprio il tempo concesso, che viene inviato al timer descritto nel \textit{capitolo \ref{capitolo1}}, che richiamerà la funzione allo scadere dello stesso.
+
+La matrice M è stata creata seguendo la struttura della seguente tabella, ritenuta agevole per l'implementazione dell'algoritmo.
+\newline
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+  \hline
+  & 
+  \textbf{Colonna 1} & 
+  \textbf{Colonna 2} \\\hline
+  Riga 1 & 
+  Corsia Ovest - Sinistra & 
+  Corsia Ovest - Dritto/Destra \\\hline
+  Riga 2 & 
+  Corsia Nord - Sinistra & 
+  Corsia Nord - Dritto/Destra \\\hline
+  Riga 3 & 
+  Corsia Est - Sinistra & 
+  Corsia Est - Dritto/Destra \\\hline
+  Riga 4 & 
+  Corsia Sud - Sinistra & 
+  Corsia Sud - Dritto/Destra \\\hline
+\end{tabular}
+\caption{Matrice della lunghezza delle code per ogni corsia}
+\label{table:matrix-length-corsia}
+\end{table}
+
 \newpage
 \begin{lstlisting}[language=Matlab,label=key,caption=Scelta delle due strade complementari a quella selezionata come principale]
     function [i1, j1, i2, j2] = getCandidates(i, j)
@@ -253,12 +287,12 @@ end
 È da sottolineare che questo codice funziona fintanto che gli ingressi non vengono variati: se si dovesse collegare una strada ad un ingresso diverso da quello previsto ed utilizzato nella simulazione chiaramente l’intero algoritmo non sarebbe più affidabile. L'autore di questa tesi è consapevole che esistono metodi più eleganti ed ottimizzati rispetto a questa sequenza di \textit{if} ed \textit{elseif} per ottenere il medesimo scopo, tuttavia si è reso necessario procedere in questo modo per lo scarso supporto del linguaggio \textit{Matlab} a tali meccanismi, come, per esempio, gli \textit{switch - case}. In questo modo, inoltre, il codice risulta particolarmente leggibile e facile da comprendere.
 \newline
 
-Le differenze con un normale algoritmo di gestione di una giunzione, come quello proposto nel \textit{capitolo \ref{capitolo1}} sono quindi evidenti: in primo luogo non si segue una turnazione statica per quanto riguarda la concessione del verde, seguendo invece un meccanismo di priorità: ci si chiede infatti quale sia la strada che necessita del verde in quell'istante, più delle altre, e glielo si concede. Inoltre anche il tempo per cui questo verde è concesso è variabile: si ipotizzi per esempio di analizzare l'incrocio durante le ore notturne, non avrebbe senso concedere il verde per un numero di secondi elevato quando in coda è presente una sola macchina, si tratterebbe di una perdita di tempo, tradotta in un maggior consumo di carburante ed un maggiore stress per gli automobilisti delle altre corsie, costretti ad attendere perché viene concesso il verde ad una strada praticamente vuota. Viceversa è ovvio che durante il giorno, per una strada affollata, la durata della luce verde deve essere sufficiente da garantire che un buon numero delle macchine in coda defluisca.
+Le differenze con un normale algoritmo di gestione di una giunzione, come quello proposto nel \textit{capitolo \ref{capitolo1}} sono quindi evidenti: in primo luogo non si segue una turnazione statica per quanto riguarda la concessione del verde, seguendo invece un meccanismo di priorità: ci si chiede infatti quale sia la strada che necessita del verde in quell'istante, più delle altre, e glielo si concede. Inoltre anche il tempo per cui questo verde è concesso è variabile: si ipotizzi per esempio di analizzare l'incrocio durante le ore notturne, non avrebbe senso concedere il verde per un numero di secondi elevato quando in coda è presente una sola macchina: si tratterebbe di una perdita di tempo, tradotta in un maggior consumo di carburante ed un maggiore stress per gli automobilisti delle altre corsie, costretti ad attendere perché viene concesso il verde ad una strada praticamente vuota. Viceversa è ovvio che durante il giorno, per una strada affollata, la durata della luce verde deve essere sufficiente da garantire che un buon numero delle macchine in coda defluisca.
 \newpage
 
 \section{Il modello per confrontare le diverse gestioni del singolo incrocio}
 
-I benefici esposti, ovviamente, devono trovare riscontro in un confronto imparziale ed assolutamente valido fra i modelli presentati, affinché a partire dai medesimi dati in input (le automobili generate), e con gli stessi parametri (tasso di generazione, tempo di servizio interno agli \textit{Entity Server}) essi gestiscano l'incrocio secondo la propria logica. Si è scelto, pertanto, di creare in un nuovo workspace il modello identificato dalla \textit{figura \ref{fig:gatecontrolcompare}}. Si può notare come al suo interno siano presenti tre blocchi principali, ognuno dei quali è rappresentativo di un algoritmo di gestione. Guardando infatti ai tre blocchi presenti, si comprende subito come questi siano in realtà esattamente i modelli precedentemente descritti. Il primo, quello più in alto a sinistra, è quello presentato nel \textit{capitolo \ref{capitolo1}}, relativo ad una gestione statica (\textit{figura \ref{fig: modelloSingoloIncrocio}}). Quello in basso a sinistra invece si riferisce al modello di controllo dinamico, di cui si è parlato in questo capitolo (\textit{figura \ref{fig:modellosingoloincrocioalgoritmo}}), mentre quello in basso a destra è perfettamente identico a quest'ultimo, eccezion fatta per la gestione della starvation, che si è eliminata. Ciò è stato fatto per capire come tale gestione, che comunque resta assolutamente necessaria, interferisca con il normale funzionamento dell'algoritmo stesso.
+I benefici esposti, ovviamente, devono trovare riscontro in un confronto imparziale ed assolutamente valido fra i modelli presentati, affinché a partire dai medesimi dati in input (le automobili generate), e con gli stessi parametri (tasso di generazione, tempo di servizio interno agli \textit{Entity Server}) essi gestiscano l'incrocio secondo la propria logica. Si è scelto, pertanto, di creare in un nuovo workspace il modello identificato dalla \textit{figura \ref{fig:gatecontrolcompare}}. Si può notare come al suo interno siano presenti tre blocchi principali, ognuno dei quali è rappresentativo di un algoritmo di gestione. Guardando infatti ai tre blocchi presenti, si comprende subito come questi siano in realtà esattamente i modelli precedentemente descritti. Il primo, quello più in alto a sinistra, è quello presentato nel \textit{capitolo \ref{capitolo1}}, relativo ad una gestione statica (\textit{figura \ref{fig: modelloSingoloIncrocio}}). Quello in basso a sinistra invece si riferisce al modello di controllo dinamico, di cui si è parlato in questo capitolo (\textit{figura \ref{fig:modellosingoloincrocioalgoritmo}}), mentre quello in basso a destra è perfettamente identico a quest'ultimo, eccezion fatta per la gestione della \textit{starvation}, che si è eliminata. Ciò è stato fatto per capire come tale gestione, che comunque resta assolutamente necessaria, interferisca con il normale funzionamento dell'algoritmo stesso.
 
 Nello specifico, in questo terzo modello, si è provveduto semplicemente a commentare la seguente porzione di codice, lasciando tutto il resto invariato.
 \newline
@@ -278,13 +312,13 @@ Nello specifico, in questo terzo modello, si è provveduto semplicemente a comme
    end
 \end{lstlisting}
 
-Gli \textit{Entity Generator}, poi, sono stati collegati a dei blocchi di tipo \textbf{Entity Replicator\cite{entityreplicator}}, in modo tale che appena una entità viene generata in una corsia specifica, questa venga subito inviata ai tre modelli contemporaneamente. In questo modo i tre incroci sono esattamente identici sia per quanto riguarda il numero di entità che devono gestire che per quanto concerne quando queste si presentano, tutto questo per garantire l'assoluta imparzialità delle condizioni, precedentemente citata.
+Gli \textit{Entity Generator}, poi, sono stati collegati a dei blocchi di tipo \textbf{Entity Replicator\cite{entityreplicator}}, in modo tale che appena una entità viene generata in una corsia specifica, questa venga subito inviata ai tre modelli contemporaneamente. In questo modo i tre incroci sono esattamente identici sia per quanto riguarda il numero di entità che devono gestire che per quanto concerne quando queste si presentano, tutto questo per garantire l'assoluta imparzialità delle condizioni, precedentemente citata. Il Replicator è stato configurato seguendo lo schema in figura.
 \newline
 
 \begin{figure}[H]
 \centering
-  \includegraphics[width=0.3\textwidth]{Replicator.pdf}
-  \caption{Entity Replicator}
+  \includegraphics[width=1\textwidth]{replicatorEProprieta.pdf}
+  \caption{Entity Replicator e relative proprietà}
   \label{fig:}
 \end{figure}
 
@@ -300,7 +334,11 @@ Dunque il workflow è il seguente: quando una entità viene generata, questa vie
 
 \newpage
 \section{I risultati ottenuti}
-Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei tassi di generazione randomici, esattamente come nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 23 e 35 ed un tempo di servizio fra $4s$ e $6s$ come spiegato in precedenza. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}). In una configurazione di questo genere sono stati ottenuti i risultati riportati nelle seguenti tabelle.
+Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei tassi di generazione randomici, esattamente come nel \textit{capitolo \ref{capitolo1}}, con il parametro $\mu$ scelto casualmente, secondo una distribuzione uniforme, fra 23 e 35 ed un tempo di servizio pari a $5s$, rispetto ad un numero randomico fra $4s$ e $6s$ come spiegato in precedenza, per eliminare questa ulteriore variabile casuale. Questo per ottenere un numero di automobili sì variabile, ma che sia confrontabile fra le varie strade, con una configurazione dunque che può dirsi bilanciata. Il codice interno agli \textit{Entity Generator} non è dunque stato variato rispetto a quanto presentato nel \textit{codice \ref{mu-definition}}, così come la definizione dei parametri globali (\textit{codice \ref{entity-generator}}).
+
+Il tempo di concessione massima del verde, poi, è stato impostato a $35s$, e quello minimo a $15s$, come si può notare nel codice presentato precedentemente.
+
+In una configurazione di questo genere sono stati ottenuti i risultati riportati nelle seguenti tabelle.
 \newline
 
 \begin{table}[H]
@@ -514,10 +552,10 @@ Per le seguenti simulazioni il primo scenario, ovvero il seguente, presenta dei 
 
 
 
-Sono riportati, inoltre, alcuni grafici indicativi, relativi ad una singola corsia (sempre la stessa, quella del braccio ovest relativa alla svolta a sinistra), per ciascuno dei tre modelli, inerenti al tempo medio d'attesa ed al numero di macchine in coda in funzione dell'ora del giorno.
+Sono riportati, inoltre, alcuni grafici indicativi, inerenti ad una singola corsia (sempre la stessa, quella del braccio ovest relativa alla svolta a sinistra), per ciascuno dei tre modelli, che mostrano il tempo medio d'attesa ed il numero di macchine in coda in funzione dell'ora del giorno.
 \newline
 
-\textbf{Nota:} sui grafici relativi ai tempi di attesa viene riportata un'attesa stimata secondo una media temporale cumulativa, ovvero istante per istante sono sommati i tempi di attesa di ogni automobile che ha raggiunto l'incrocio e sono divisi per tale numero complessivo di auto. L'attesa relativa alla gestione della starvation, invece, viene calcolata in base al tempo trascorso fra due concessioni consecutive del verde allo stesso semaforo. Risulta chiaro quindi come in realtà la starvation intervenga anche se nei grafici che seguono il tempo di attesa medio non raggiunge mai i 5 minuti, in quanto sono due valori diversi. Ci si può rendere conto del fatto che sia intervenuta la starvation nella configurazione relativa dal fatto che i valori ottenuti si discostino da quelli inerenti alla gestione dinamica senza starvation, seppur di poco. Essendo infatti gli input ed i parametri dei due modelli identici, se la starvation non fosse intervenuta, anche gli output sarebbero dovuti essere uguali.
+\textbf{Nota:} sui grafici relativi ai tempi di attesa viene riportata un'attesa stimata secondo una media temporale cumulativa, ovvero istante per istante sono sommati i tempi di attesa di ogni automobile che ha raggiunto l'incrocio attraverso una strada specifica e sono divisi per il numero complessivo di auto della corsia in questione. L'attesa relativa alla gestione della \textit{starvation}, invece, viene calcolata in base al tempo trascorso fra due concessioni consecutive del verde allo stesso semaforo. Risulta chiaro quindi come in realtà la \textit{starvation} intervenga anche se nei grafici che seguono il tempo di attesa medio non raggiunge mai i 2.5 minuti, in quanto sono due valori diversi. Ci si può rendere conto del fatto che sia intervenuta la \textit{starvation} nella configurazione relativa dal fatto che i valori ottenuti si discostino da quelli inerenti alla gestione dinamica senza \textit{starvation}, seppur di poco. Essendo infatti gli input ed i parametri dei due modelli identici, se la \textit{starvation} non fosse intervenuta, anche gli output sarebbero dovuti essere uguali.
 
 \begin{figure}[H]
 \centering
@@ -574,12 +612,12 @@ Nello specifico è interessante notare come vengano abbattuti drasticamente i te
 
 Analizzando la corsia \textit{Ovest - Sinistra}, ovvero relativa alle auto che dal braccio ovest vogliono svoltare a sinistra, presa come esempio nella generazione dei grafici, in particolare, è facile comprendere che il massimo tempo di attesa raggiunto con la gestione statica sia di ben $80s$, a fronte dei $25s$ dei due algoritmi dinamici, così come è ben rilevabile che il massimo numero di auto in coda passi da 25 a 11 / 13.
 
-Confrontando poi la gestione con e senza starvation si nota come i due siano essenzialmente equivalenti. Questo sia perché la gestione della starvation interviene molto raramente, sia perché comunque, anche gestendo questa particolare variabile, l'algoritmo resta ottimizzato rispetto alla ricerca della corsia complementare a quella in attesa.
+Confrontando poi le gestioni con e senza \textit{starvation} si nota come le due siano essenzialmente equivalenti. Questo sia perché la gestione della \textit{starvation} interviene molto raramente, sia perché comunque, anche gestendo questa particolare variabile, l'algoritmo resta ottimizzato rispetto alla ricerca della corsia complementare a quella in attesa.
 
 Queste considerazioni valgono per qualsiasi corsia, come emerge dalla tabella riportata, ed è da sottolineare che sono stati generati solo i grafici relativi ad una singola strada per praticità, mentre tutti i valori ottenuti sono stati fedelmente trascritti nella suddetta tabella.
 \newline
 
-Nella seguente simulazione ci si è concentrati sulla modellazione di una configurazione sbilanciata, con strade molto più affollate di altre, per comprendere anche in questo caso quanto sia pratico utilizzare un algoritmo di gestione dinamica. Nello specifico le corsie relative ai bracci \textit{Nord} e \textit{Sud} sono state volutamente congestionate, fissando il valore del parametro $\mu$ a 25, di base, a cui, si ricorda, deve essere sottratto un numero pari a 6 durante le ore di punta (mattina e pranzo) ed un numero pari a 3 durante l'ora di cena, mentre viene aggiunto un valore pari ad 80 durante la notte, per simulare il normale afflusso dei veicoli rispetto allo specifico periodo della giornata. Una spiegazione più approfondita di tutto ciò è stata già data nel \textit{Capitolo \ref{capitolo1}}.
+Nella seguente simulazione ci si è concentrati sulla modellazione di una configurazione sbilanciata, con strade molto più affollate di altre, per comprendere anche in questo caso quanto sia pratico utilizzare un algoritmo di gestione dinamica. Nello specifico le corsie relative ai bracci \textit{Nord} e \textit{Sud} sono state volutamente congestionate, fissando il valore del parametro $\mu$ a 25, di base, a cui, si ricorda, deve essere sottratto un numero pari a 6 durante le ore di punta (mattina e pranzo) ed un numero pari a 3 durante l'ora di cena, mentre viene aggiunto un valore pari ad 80 durante la notte, per simulare il normale afflusso dei veicoli rispetto allo specifico periodo della giornata. Una spiegazione più approfondita di tutto ciò è stata già data nel \textit{Capitolo \ref{capitolo1}}. Le strade dei bracci \textit{Est} ed \textit{Ovest}, invece sono state lasciate abbastanza libere ($\mu$ pari a 60).
 
 
 
@@ -678,7 +716,8 @@ Nella seguente simulazione ci si è concentrati sulla modellazione di una config
   & 7
   & $13.18s$\\\hline
 \end{tabular}
-\caption{table}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio
+- prime quattro corsie - configurazione sbilanciata}
 \label{table:keytable}
 \end{table}
 \newpage
@@ -777,7 +816,8 @@ Nella seguente simulazione ci si è concentrati sulla modellazione di una config
   & 8
   & $17.77s$\\\hline
 \end{tabular}
-\caption{table}
+\caption{Tabella di comparazione fra algoritmi di gestione del singolo incrocio
+- ultime quattro corsie - configurazione sbilanciata}
 \label{table:keytable}
 \end{table}
 
@@ -884,9 +924,9 @@ Di seguito sono riportati alcuni grafici relativi alla corsia \textit{Ovest - Si
   \label{fig:}
 \end{figure}
 
-Anche in questo caso si notano gli enormi benefici apportati da una gestione intelligente dell'incrocio, implementando un algoritmo di gestione come quello proposto. In particolare appare chiaro come non solo vengano abbattuti i tempi di attesa, sia per le corsie affollate che per quelle con meno automobili, ma anche come questi vengano resi pressoché omogenei per tutte le corsie, e come l'ingorgo sia gestito egregiamente.
+Anche in questo caso si notano gli enormi benefici apportati da una gestione intelligente dell'incrocio, a seguito di un'implementazione di un algoritmo come quello proposto. In particolare appare chiaro come non solo vengano abbattuti i tempi di attesa, sia per le corsie affollate che per quelle con meno automobili, ma anche come questi vengano resi pressoché omogenei per tutte le corsie, e come l'ingorgo sia gestito egregiamente.
 
-Per quanto concerne il numero massimo di auto in coda, si ha un sostanziale decremento per le strade più congestionate, mentre questo rimane stabile per quelle con meno entità, a fronte però di attese ridotte. Anche in questo caso la gestione della starvation non penalizza lo smaltimento delle automobili.
+Per quanto concerne il numero massimo di auto in coda, si ha un sostanziale decremento per le strade più congestionate, mentre questo rimane stabile per quelle con meno entità, a fronte però di attese ridotte. Anche in questo caso la gestione della \textit{starvation} non penalizza lo smaltimento delle automobili.
 \newline
 
 In conclusione, dopo numerosi test svolti, si può affermare con certezza che l'algoritmo presentato sia funzionante e gestisca decisamente meglio gli incroci, in qualsiasi condizione, rispetto a quello tradizionale. Chiaramente bisogna considerare il fatto che si è esclusivamente analizzato il comportamento del codice presentato quando applicato ad una singola giunzione, quindi sorge spontanea la domanda: "cosa succederebbe se questo venisse applicato ad un cluster di incroci interconnessi fra loro? I benefici sarebbero altrettanto notevoli?". Per la risposta a questo legittimo interrogativo, nei prossimi capitoli verrà presentato un modello a 9 incroci interconnessi e comunicanti, basato su quanto già esposto, e sarà dimostrato come anche in una simulazione di questo genere sia indubbiamente conveniente gestire tali intersezioni dinamicamente.
