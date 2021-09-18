@@ -1,2 +1,1 @@
-# tesi_triennale
-Bachelor Thesis (Italian).
+# Bachelor Thesis (Italian).
